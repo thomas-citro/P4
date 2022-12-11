@@ -4,6 +4,7 @@
 void statSemantics(node*, std::string);
 int find(std::string);
 void traverse(node*);
+void checkNode(node*);
 void processR(node*);
 void processInput(node*);
 void processAssign(node*);
