@@ -1,0 +1,6 @@
+# p4g1, simplest program possible that does basically anything #
+whole x := 0 ;
+program
+begin
+input x ;
+end
