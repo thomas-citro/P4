@@ -192,8 +192,8 @@ void processInput(node* myNode) {
 	if (isGlobal) {
 		writeAssembly("READ", myNode->first->tk->instance);
 	} else {
-		writeAssembly("READ", getTempName(found));
-		writeAssembly("LOAD", getTempName(found));
+		writeAssembly("READ", getTempName());
+		writeAssembly("LOAD", getTempName());
 		writeAssembly("STACKW", to_string(found));
 	}
 }
