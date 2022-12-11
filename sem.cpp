@@ -89,7 +89,7 @@ void writeVariables() {
 }
 
 
-void traverse(node* myNode) {
+void traverse(node* myNode, bool onlyCheckCurrentNode) {
 	int varsCount = 0;
 	
 	// Iterate through each child
@@ -148,7 +148,8 @@ void traverse(node* myNode) {
 		} else if (inst == "<goto>") {
 			processGoto(currentChild);
 		} else if (currentChild->tk->instance != "Empty") {
-			traverse(currentChild);
+			cout << "Unexpected error: no processor for nonempty child (" << currentChild->tk->instance << ")" << endl;
+			exit(0);
 		}
 	}
 	if (varsCount != 0) {
@@ -175,7 +176,7 @@ void processR(node* myNode) {
 			statSemanticsError("Unknown variable", myNode->first->tk->instance, myNode->first->tk->lineNum);
 		}
 	} else if (myNode->first->tk->instance == "<expr>") {
-		traverse(myNode->first);
+		traverse(myNode);
 		return;
 	}
 	writeAssembly("LOAD", myNode->first->tk->instance);
@@ -206,7 +207,7 @@ void processAssign(node* myNode) {
 		statSemanticsError("Assigning unknown variable", myNode->first->tk->instance, myNode->first->tk->lineNum);
 	}
 	bool isGlobal = findGlobal(myNode->first->tk->instance);
-	traverse(myNode->second);
+	traverse(myNode->second, true);
 	if (isGlobal) {
 		writeAssembly("STORE", myNode->first->tk->instance);
 	} else {
@@ -255,7 +256,8 @@ void processVars(node* myNode, int& varsCount) {
 
 // <block> -> begin <vars> <stats> end
 void processBlock(node* myNode) {
-
+	traverse(myNode->first);
+	traverse(myNode->second);
 }
 
 
@@ -275,7 +277,7 @@ void processExpr(node* myNode) {
 
 // <N> -> <A> + <N> | <A> * <N> | <A>
 void processN(node* myNode) {
-
+	
 }
 
 
