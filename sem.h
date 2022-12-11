@@ -8,9 +8,11 @@ void processR(node*);
 void processInput(node*);
 void processAssign(node*);
 void processVars(node*, int&);
+void processLabel(node*);
 void statSemanticsError(std::string, std::string, int);
 void writeAssembly(std::string, std::string, std::string);
 bool findGlobal(std::string);
 std::string getTempName(int);
+void writeTemporaries();
 
 #endif

@@ -78,6 +78,16 @@ string getTempName(int fromTopOfStack) {
 }
 
 
+void writeVariables() {
+	for (unsigned int i = 0; i < globals.size(); i++) {
+		writeAssembly(globals.at(i), "0");
+	}
+	for (unsigned int i = 1; i <= maxTemporaries; i++) {
+		writeAssembly("T" + to_string(i), "0");
+	}
+}
+
+
 void traverse(node* myNode) {
 	int varsCount = 0;
 	
@@ -105,6 +115,9 @@ void traverse(node* myNode) {
 			processInput(currentChild);
 		} else if (currentChild->tk->instance == "<R>") {
 			processR(currentChild);
+		// New processors for P4
+		} else if (currentChild->tk->instance == "<label>") {
+			processLabel(currentChild);
 		} else if (currentChild->tk->instance != "Empty") {
 			traverse(currentChild);
 		}
@@ -116,6 +129,11 @@ void traverse(node* myNode) {
 			varsCount--;
 		}
 	}
+}
+
+
+void processLabel(node* myNode) {
+	writeAssembly(myNode->first->tk->instance + ":");
 }
 
 
@@ -152,7 +170,7 @@ void processAssign(node* myNode) {
 	if (found == -1) {
 		statSemanticsError("Assigning unknown variable", myNode->first->tk->instance, myNode->first->tk->lineNum);
 	}
-	bool isGlobal = findGlobal(myNode->first->tk->instance);
+	//bool isGlobal = findGlobal(myNode->first->tk->instance);
 	
 	traverse(myNode->second);
 
