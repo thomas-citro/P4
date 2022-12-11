@@ -73,9 +73,9 @@ bool findGlobal(string myStr) {
 }
 
 
-string getTempName(int fromTopOfStack) {
-	int ID = myStack.size() - fromTopOfStack;
-	return "T" + to_string(ID);
+string getTempName() {
+	numTemporaries++;
+	return "T" + to_string(numTemporaries);
 }
 
 
@@ -205,10 +205,13 @@ void processAssign(node* myNode) {
 	if (found == -1) {
 		statSemanticsError("Assigning unknown variable", myNode->first->tk->instance, myNode->first->tk->lineNum);
 	}
-	//bool isGlobal = findGlobal(myNode->first->tk->instance);
-	
+	bool isGlobal = findGlobal(myNode->first->tk->instance);
 	traverse(myNode->second);
-
+	if (isGlobal) {
+		writeAssembly("STORE", myNode->first->tk->instance);
+	} else {
+		writeAssembly("STACKW", to_string(found));
+	}
 }
 
 
@@ -258,7 +261,15 @@ void processBlock(node* myNode) {
 
 // <expr> -> <N> - <expr> | <N>
 void processExpr(node* myNode) {
-
+	if (myNode->second != NULL) {
+		string myTemp = getTempName();
+		traverse(myNode->second);
+		writeAssembly("STORE", myTemp);
+		traverse(myNode->first);
+		writeAssembly("ADD", myTemp);
+	} else {
+		traverse(myNode->first);
+	}
 }
 
 

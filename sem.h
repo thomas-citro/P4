@@ -26,7 +26,7 @@ void processGoto(node*);
 void statSemanticsError(std::string, std::string, int);
 void writeAssembly(std::string, std::string = "N/A", std::string = "N/A");
 bool findGlobal(std::string);
-std::string getTempName(int);
+std::string getTempName();
 void writeVariables();
 
 #endif
