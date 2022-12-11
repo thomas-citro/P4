@@ -89,7 +89,7 @@ void writeVariables() {
 }
 
 
-void traverse(node* myNode, bool onlyCheckCurrentNode) {
+void traverse(node* myNode) {
 	int varsCount = 0;
 	
 	// Iterate through each child
@@ -108,49 +108,7 @@ void traverse(node* myNode, bool onlyCheckCurrentNode) {
 		}
 		if (currentChild == NULL) continue;
 		
-		string inst = currentChild->tk->instance;
-		if (inst == "<vars>") {
-			processVars(currentChild, varsCount);
-		} else if (inst == "<assign>") {
-			processAssign(currentChild);
-		} else if (inst == "<in>") {
-			processInput(currentChild);
-		} else if (inst == "<R>") {
-			processR(currentChild);
-		} else if (inst == "<label>") {
-			processLabel(currentChild);
-		} else if (inst == "<block>") {
-			processBlock(currentChild);
-		} else if (inst == "<expr>") {
-			processExpr(currentChild);
-		} else if (inst == "<N>") {
-			processN(currentChild);
-		} else if (inst == "<A>") {
-			processA(currentChild);
-		} else if (inst == "<A2>") {
-			processA2(currentChild);
-		} else if (inst == "<M>") {
-			processM(currentChild);
-		} else if (inst == "<stats>") {
-			processStats(currentChild);
-		} else if (inst == "<stat>") {
-			processStat(currentChild);
-		} else if (inst == "<mStat>") {
-			processMStat(currentChild);
-		} else if (inst == "<out>") {
-			processOut(currentChild);
-		} else if (inst == "<if>") {
-			processIf(currentChild);
-		} else if (inst == "<loop>") {
-			processLoop(currentChild);
-		} else if (inst == "<RO>") {
-			processRO(currentChild);
-		} else if (inst == "<goto>") {
-			processGoto(currentChild);
-		} else if (currentChild->tk->instance != "Empty") {
-			cout << "Unexpected error: no processor for nonempty child (" << currentChild->tk->instance << ")" << endl;
-			exit(0);
-		}
+		checkNode(currentChild);
 	}
 	if (varsCount != 0) {
 		while (varsCount > 0) {
@@ -159,6 +117,52 @@ void traverse(node* myNode, bool onlyCheckCurrentNode) {
 			varsCount--;
 		}
 	}
+}
+
+void checkNode(node* myNode) {	
+	string inst = myNode->tk->instance;
+	if (inst == "<vars>") {
+		processVars(myNode, varsCount);
+	} else if (inst == "<assign>") {
+		processAssign(myNode);
+	} else if (inst == "<in>") {
+		processInput(myNode);
+	} else if (inst == "<R>") {
+		processR(myNode);
+	} else if (inst == "<label>") {
+		processLabel(myNode);
+	} else if (inst == "<block>") {
+		processBlock(myNode);
+	} else if (inst == "<expr>") {
+		processExpr(myNode);
+	} else if (inst == "<N>") {
+		processN(myNode);
+	} else if (inst == "<A>") {
+		processA(myNode);
+	} else if (inst == "<A2>") {
+		processA2(myNode);
+	} else if (inst == "<M>") {
+		processM(myNode);
+	} else if (inst == "<stats>") {
+		processStats(myNode);
+	} else if (inst == "<stat>") {
+		processStat(myNode);
+	} else if (inst == "<mStat>") {
+		processMStat(myNode);
+	} else if (inst == "<out>") {
+		processOut(myNode);
+	} else if (inst == "<if>") {
+		processIf(myNode);
+	} else if (inst == "<loop>") {
+		processLoop(myNode);
+	} else if (inst == "<RO>") {
+		processRO(myNode);
+	} else if (inst == "<goto>") {
+		processGoto(myNode);
+	} else if (myNode->tk->instance != "Empty") {
+		cout << "Unexpected error: no processor for nonempty node (" << myNode->tk->instance << ")" << endl;
+		exit(0);
+	}	
 }
 
 
