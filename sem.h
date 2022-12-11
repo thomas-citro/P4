@@ -10,9 +10,9 @@ void processAssign(node*);
 void processVars(node*, int&);
 void processLabel(node*);
 void statSemanticsError(std::string, std::string, int);
-void writeAssembly(std::string, std::string, std::string);
+void writeAssembly(std::string, std::string = "N/A", std::string = "N/A");
 bool findGlobal(std::string);
 std::string getTempName(int);
-void writeTemporaries();
+void writeVariables();
 
 #endif

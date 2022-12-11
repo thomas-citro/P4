@@ -27,7 +27,8 @@ void statSemantics(node* root, string file) {
 
 	readingGlobals = true;
 	traverse(root);
-	cout << "No errors detected" << endl;
+	writeAssembly("STOP");
+	writeVariables();
 }
 
 
@@ -47,7 +48,7 @@ int find(string myStr) {
 }
 
 
-void writeAssembly(string statement, string arg1 = "N/A", string arg2 = "N/A") {
+void writeAssembly(string statement, string arg1, string arg2) {
 	assemblyFile.open(assemblyFileName, ios::app);
 
 	if (arg1 == "N/A") {
@@ -196,11 +197,13 @@ void processVars(node* myNode, int& varsCount) {
 			} else {
 				varsCount++;
 				myStack.push(identNode->tk->instance);
-				writeAssembly("PUSH", currentNode->second->tk->instance);
+				writeAssembly("LOAD", currentNode->second->tk->instance);
 				if (readingGlobals) {
+					writeAssembly("STORE", identNode->tk->instance);
 					varsCount--; // To keep globals on the stack
 					globals.push_back(identNode->tk->instance);
 				} else {
+					writeAssembly("PUSH");
 					if (myStack.size() - globals.size() > maxTemporaries) {
 						maxTemporaries = myStack.size() - globals.size();
 					}
