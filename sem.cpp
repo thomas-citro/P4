@@ -16,7 +16,7 @@ string fileName2;
 string assemblyFileName;
 ofstream assemblyFile;
 bool readingGlobals;
-unsigned int maxTemporaries = 0;
+int numTemporaries = 0;
 
 
 void statSemantics(node* root, string file) {
@@ -83,7 +83,7 @@ void writeVariables() {
 	for (unsigned int i = 0; i < globals.size(); i++) {
 		writeAssembly(globals.at(i), "0");
 	}
-	for (unsigned int i = 1; i <= maxTemporaries; i++) {
+	for (int i = 1; i <= numTemporaries; i++) {
 		writeAssembly("T" + to_string(i), "0");
 	}
 }
@@ -108,17 +108,45 @@ void traverse(node* myNode) {
 		}
 		if (currentChild == NULL) continue;
 		
-		if (currentChild->tk->instance == "<vars>") {
+		string inst = currentChild->tk->instance;
+		if (inst == "<vars>") {
 			processVars(currentChild, varsCount);
-		} else if (currentChild->tk->instance == "<assign>") {
+		} else if (inst == "<assign>") {
 			processAssign(currentChild);
-		} else if (currentChild->tk->instance == "<in>") {
+		} else if (inst == "<in>") {
 			processInput(currentChild);
-		} else if (currentChild->tk->instance == "<R>") {
+		} else if (inst == "<R>") {
 			processR(currentChild);
-		// New processors for P4
-		} else if (currentChild->tk->instance == "<label>") {
+		} else if (inst == "<label>") {
 			processLabel(currentChild);
+		} else if (inst == "<block>") {
+			processBlock(currentChild);
+		} else if (inst == "<expr>") {
+			processExpr(currentChild);
+		} else if (inst == "<N>") {
+			processN(currentChild);
+		} else if (inst == "<A>") {
+			processA(currentChild);
+		} else if (inst == "<A2>") {
+			processA2(currentChild);
+		} else if (inst == "<M>") {
+			processM(currentChild);
+		} else if (inst == "<stats>") {
+			processStats(currentChild);
+		} else if (inst == "<stat>") {
+			processStat(currentChild);
+		} else if (inst == "<mStat>") {
+			processMStat(currentChild);
+		} else if (inst == "<out>") {
+			processOut(currentChild);
+		} else if (inst == "<if>") {
+			processIf(currentChild);
+		} else if (inst == "<loop>") {
+			processLoop(currentChild);
+		} else if (inst == "<RO>") {
+			processRO(currentChild);
+		} else if (inst == "<goto>") {
+			processGoto(currentChild);
 		} else if (currentChild->tk->instance != "Empty") {
 			traverse(currentChild);
 		}
@@ -133,11 +161,13 @@ void traverse(node* myNode) {
 }
 
 
+// <label> -> label Identifier
 void processLabel(node* myNode) {
 	writeAssembly(myNode->first->tk->instance + ":");
 }
 
 
+// <R> -> ( <expr> ) | Identifier | Integer
 void processR(node* myNode) {
 	if (myNode->first->tk->tokenType == "identifier") {
 		int found = find(myNode->first->tk->instance);
@@ -146,10 +176,13 @@ void processR(node* myNode) {
 		}
 	} else if (myNode->first->tk->instance == "<expr>") {
 		traverse(myNode->first);
+		return;
 	}
+	writeAssembly("LOAD", myNode->first->tk->instance);
 }
 
 
+// <in> -> input Identifier
 void processInput(node* myNode) {
 	int found = find(myNode->first->tk->instance);
 	if (found == -1) {
@@ -166,6 +199,7 @@ void processInput(node* myNode) {
 }
 
 
+// <assign> -> assign Identifier = <expr>
 void processAssign(node* myNode) {
 	int found = find(myNode->first->tk->instance);
 	if (found == -1) {
@@ -178,6 +212,7 @@ void processAssign(node* myNode) {
 }
 
 
+// <vars> -> empty | whole Identifier := Integer; <vars>
 void processVars(node* myNode, int& varsCount) {
 	node* currentNode = myNode;
 	node* identNode;
@@ -204,9 +239,6 @@ void processVars(node* myNode, int& varsCount) {
 					globals.push_back(identNode->tk->instance);
 				} else {
 					writeAssembly("PUSH");
-					if (myStack.size() - globals.size() > maxTemporaries) {
-						maxTemporaries = myStack.size() - globals.size();
-					}
 				}
 				currentNode = currentNode->third;
 			}
@@ -215,6 +247,91 @@ void processVars(node* myNode, int& varsCount) {
 	if (readingGlobals) {
 		readingGlobals = false;
 	}
+}
+
+
+// <block> -> begin <vars> <stats> end
+void processBlock(node* myNode) {
+
+}
+
+
+// <expr> -> <N> - <expr> | <N>
+void processExpr(node* myNode) {
+
+}
+
+
+// <N> -> <A> + <N> | <A> * <N> | <A>
+void processN(node* myNode) {
+
+}
+
+
+// <A> -> <M> <A2>
+void processA(node* myNode) {
+	
+}
+
+
+// <A2> -> / <M> <A2> | Empty
+void processA2(node* myNode) {
+
+}
+
+
+// <M> -> :<M> | <R>
+void processM(node* myNode) {
+	traverse(myNode);
+}
+
+
+// <stats> -> <stat> <mStat>
+void processStats(node* myNode) {
+
+}
+
+
+// <stat> -> <in>; | <out>; | <block> | <if>; | <loop>; | <assign>; | <goto>; | <label>;
+void processStat(node* myNode) {
+
+}
+
+
+// <mStat> -> empty | <stat> <mStat>
+void processMStat(node* myNode) {
+
+}
+
+
+// <out> -> output <expr>
+void processOut(node* myNode) {
+
+}
+
+
+// <if> -> if [ <expr> <RO> <expr> ] then <stat>
+// | if [ <expr> <RO> <expr> ] then <stat> pick <stat>
+void processIf(node* myNode) {
+
+}
+
+
+// <loop> -> while [ <expr> <RO> <expr> ] <stat>
+void processLoop(node* myNode) {
+
+}
+
+
+// <RO> -> > | < | == | [=] | !=
+void processRO(node* myNode) {
+
+}
+
+
+// <goto> -> warp Identifier
+void processGoto(node* myNode) {
+	writeAssembly("BR", myNode->first->tk->instance);
 }
 
 
