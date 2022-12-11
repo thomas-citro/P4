@@ -180,7 +180,7 @@ void processR(node* myNode) {
 			statSemanticsError("Unknown variable", myNode->first->tk->instance, myNode->first->tk->lineNum);
 		}
 	} else if (myNode->first->tk->instance == "<expr>") {
-		traverse(myNode);
+		checkNode(myNode->first);
 		return;
 	}
 	writeAssembly("LOAD", myNode->first->tk->instance);
@@ -211,7 +211,7 @@ void processAssign(node* myNode) {
 		statSemanticsError("Assigning unknown variable", myNode->first->tk->instance, myNode->first->tk->lineNum);
 	}
 	bool isGlobal = findGlobal(myNode->first->tk->instance);
-	traverse(myNode->second, true);
+	checkNode(myNode->second, true);
 	if (isGlobal) {
 		writeAssembly("STORE", myNode->first->tk->instance);
 	} else {
@@ -260,8 +260,7 @@ void processVars(node* myNode, int& varsCount) {
 
 // <block> -> begin <vars> <stats> end
 void processBlock(node* myNode) {
-	traverse(myNode->first);
-	traverse(myNode->second);
+	traverse(myNode);
 }
 
 
@@ -269,12 +268,12 @@ void processBlock(node* myNode) {
 void processExpr(node* myNode) {
 	if (myNode->second != NULL) {
 		string myTemp = getTempName();
-		traverse(myNode->second);
+		checkNode(myNode->second);
 		writeAssembly("STORE", myTemp);
-		traverse(myNode->first);
+		checkNode(myNode->first);
 		writeAssembly("ADD", myTemp);
 	} else {
-		traverse(myNode->first);
+		checkNode(myNode->first);
 	}
 }
 
