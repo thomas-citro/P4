@@ -17,6 +17,7 @@ string assemblyFileName;
 ofstream assemblyFile;
 bool readingGlobals;
 int numTemporaries = 0;
+int numLabels = 0;
 
 
 void statSemantics(node* root, string file) {
@@ -76,6 +77,12 @@ bool findGlobal(string myStr) {
 string getTempName() {
 	numTemporaries++;
 	return "T" + to_string(numTemporaries);
+}
+
+
+string getLabelName() {
+	numLabels++;
+	return "L" + to_string(numLabels);
 }
 
 
@@ -280,13 +287,25 @@ void processExpr(node* myNode) {
 
 // <N> -> <A> + <N> | <A> * <N> | <A>
 void processN(node* myNode) {
-	
+	if (myNode->third != NULL) {
+		string myTemp = getTempName;
+		checkNode(myNode->third);
+		writeAssembly("STORE", myTemp);
+		checkNode(myNode->first);
+		if (myNode->second->tk->instance == "+") {
+			writeAssembly("ADD", myTemp);
+		} else {
+			writeAssembly("MULT", myTemp);
+		}
+	} else {
+		checkNode(myNode->first);
+	}
 }
 
 
 // <A> -> <M> <A2>
 void processA(node* myNode) {
-	
+
 }
 
 
@@ -304,44 +323,122 @@ void processM(node* myNode) {
 
 // <stats> -> <stat> <mStat>
 void processStats(node* myNode) {
-
+	traverse(myNode);
 }
 
 
 // <stat> -> <in>; | <out>; | <block> | <if>; | <loop>; | <assign>; | <goto>; | <label>;
 void processStat(node* myNode) {
-
+	traverse(myNode);
 }
 
 
 // <mStat> -> empty | <stat> <mStat>
 void processMStat(node* myNode) {
-
+	if (myNode->first->tk->instance == "Empty") return;
+	traverse(myNode);
 }
 
 
 // <out> -> output <expr>
 void processOut(node* myNode) {
-
+	string myTemp = getTempName();
+	checkNode(myNode->first);
+	writeAssembly("STORE", myTemp);
+	writeAssembly("WRITE", myTemp);
 }
 
 
 // <if> -> if [ <expr> <RO> <expr> ] then <stat>
 // | if [ <expr> <RO> <expr> ] then <stat> pick <stat>
 void processIf(node* myNode) {
-
+	string myLabel = getLabelName();
+	string myTemp = getTempName();
+	checkNode(myNode->first);
+	writeAssembly("STORE", myTemp);
+	checkNode(myNode->third);
+	
+	if (myNode->second->first->tk->instance == "[=]") {
+		string myTemp2 = getTempName();
+		writeAssembly("STORE", myTemp2);
+		
+		string posLabel = getLabelName();
+		writeAssembly("LOAD", myTemp);
+		writeAssembly("BRZPOS", posLabel);
+		writeAssembly("LOAD", myTemp2);
+		writeAssembly("BRZPOS", myLabel);
+		writeAssembly(posLabel + ":", "NOOP");
+		writeAssembly("LOAD", myTemp2);
+		writeAssembly("BRNEG", myLabel);
+	} else {
+		writeAssembly("SUB", myTemp);
+	}
+	checkNode(myNode->second);
+	checkNode(myNode->fourth);
+	
+	if (myNode->fifth != NULL) {
+		// Else statement exists
+		string myLabel2 = getLabelName();
+		writeAssembly("BR", myLabel2);
+		writeAssembly(myLabel + ":", "NOOP");
+		checkNode(myNode->fifth);
+		writeAssembly(myLabel2 + ":", "NOOP");
+	} else {
+		// No else statement included
+		writeAssembly(myLabel + ":", "NOOP");
+	}
 }
 
 
 // <loop> -> while [ <expr> <RO> <expr> ] <stat>
 void processLoop(node* myNode) {
-
+	string startLabel = getLabelName();
+	writeAssembly(startLabel + ":", "NOOP");
+	string exitLabel = getLabelName();
+	string myTemp = getTempName();
+	checkNode(myNode->first);
+	writeAssembly("STORE", myTemp);
+	checkNode(myNode->third);
+	
+	if (myNode->second->first->tk->instance == "[=]") {
+		string myTemp2 = getTempName();
+		writeAssembly("STORE", myTemp2);
+		string posLabel = getLabelName();
+		writeAssembly("LOAD", myTemp);
+		writeAssembly("BRZPOS", posLabel);
+		writeAssembly("LOAD", myTemp2);
+		writeAssembly("BRZPOS", exitLabel);
+		writeAssembly(posLabel + ":", "NOOP");
+		writeAssembly("LOAD", myTemp2);
+		writeAssembly("BRNEG", exitLabel);
+	} else {
+		writeAssembly("SUB", myTemp);
+	}
+	checkNode(myNode->second);
+	checkNode(myNode->fourth);
+	writeAssembly("BR", startLabel); // Repeat loop
+	writeAssembly(exitLabel + ":", "NOOP");
 }
 
 
 // <RO> -> > | < | == | [=] | !=
 void processRO(node* myNode) {
-
+	string oper = myNode->first->tk->instance;
+	if (oper == ">") {
+		writeAssembly("BRNEG", "L" + to_string(numLabels));
+	} else if (oper == "<") {
+		writeAssemblyl("BRPOS", "L" + to_string(numLabels));
+	} else if (oper == "==") {
+		writeAssembly("BRPOS", "L" + to_string(numLabels));
+		writeAssembly("BRNEG", "L" + to_string(numLabels));
+	} else if (oper == "[=]") {
+		// Already handled in processIf function
+	} else if (oper == "!=") {
+		writeAssembly("BRZERO", "L" + to_string(numLabels));
+	} else {
+		cout << "Unexpected error" << endl;
+		exit(0);
+	}
 }
 
 
