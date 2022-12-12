@@ -1,0 +1,6 @@
+# p4g2, take in a number and output it, will have to implement part of expression for this #
+whole xz := 10 ;
+program
+begin
+output xz ;
+end
