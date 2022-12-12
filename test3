@@ -1,0 +1,7 @@
+# p4g3, test mathematical operations #
+whole yx := 3 ;
+program
+begin
+   assign yx = 5 * 7 - 11 + 13 / : 15 ;
+   output yx ;
+end
