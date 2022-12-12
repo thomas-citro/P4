@@ -115,7 +115,11 @@ void traverse(node* myNode) {
 		}
 		if (currentChild == NULL) continue;
 		
-		checkNode(currentChild);
+		if (currentChild->tk->instance == "<vars>") {
+			processVars(currentChild, varsCount);
+		} else {
+			checkNode(currentChild);
+		}
 	}
 	if (varsCount != 0) {
 		while (varsCount > 0) {
@@ -128,9 +132,7 @@ void traverse(node* myNode) {
 
 void checkNode(node* myNode) {	
 	string inst = myNode->tk->instance;
-	if (inst == "<vars>") {
-		processVars(myNode, varsCount);
-	} else if (inst == "<assign>") {
+	if (inst == "<assign>") {
 		processAssign(myNode);
 	} else if (inst == "<in>") {
 		processInput(myNode);
@@ -218,7 +220,7 @@ void processAssign(node* myNode) {
 		statSemanticsError("Assigning unknown variable", myNode->first->tk->instance, myNode->first->tk->lineNum);
 	}
 	bool isGlobal = findGlobal(myNode->first->tk->instance);
-	checkNode(myNode->second, true);
+	checkNode(myNode->second);
 	if (isGlobal) {
 		writeAssembly("STORE", myNode->first->tk->instance);
 	} else {
@@ -288,7 +290,7 @@ void processExpr(node* myNode) {
 // <N> -> <A> + <N> | <A> * <N> | <A>
 void processN(node* myNode) {
 	if (myNode->third != NULL) {
-		string myTemp = getTempName;
+		string myTemp = getTempName();
 		checkNode(myNode->third);
 		writeAssembly("STORE", myTemp);
 		checkNode(myNode->first);
@@ -313,16 +315,17 @@ void processA(node* myNode) {
 
 
 // <A2> -> / <M> <A2> | Empty
-void processA2(node* myNode, node* parent) {
+void processA2(node* myNode) {
 	if (myNode->first->tk->instance == "Empty") {
 		return;
 	} else {
-		prevTemp = "T" + to_string(numTemporaries);
+		string prevTemp = "T" + to_string(numTemporaries);
 		string myTemp = getTempName();
 		checkNode(myNode->second);
 		writeAssembly("STORE", myTemp);
 		writeAssembly("LOAD", prevTemp);
 		writeAssembly("DIV", myTemp);
+	}
 }
 
 
@@ -438,7 +441,7 @@ void processRO(node* myNode) {
 	if (oper == ">") {
 		writeAssembly("BRNEG", "L" + to_string(numLabels));
 	} else if (oper == "<") {
-		writeAssemblyl("BRPOS", "L" + to_string(numLabels));
+		writeAssembly("BRPOS", "L" + to_string(numLabels));
 	} else if (oper == "==") {
 		writeAssembly("BRPOS", "L" + to_string(numLabels));
 		writeAssembly("BRNEG", "L" + to_string(numLabels));
