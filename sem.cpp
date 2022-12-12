@@ -305,13 +305,24 @@ void processN(node* myNode) {
 
 // <A> -> <M> <A2>
 void processA(node* myNode) {
-
+	string myTemp = getTempName();
+	checkNode(myNode->first);
+	writeAssembly("STORE", myTemp);
+	checkNode(myNode->second);
 }
 
 
 // <A2> -> / <M> <A2> | Empty
-void processA2(node* myNode) {
-
+void processA2(node* myNode, node* parent) {
+	if (myNode->first->tk->instance == "Empty") {
+		return;
+	} else {
+		prevTemp = "T" + to_string(numTemporaries);
+		string myTemp = getTempName();
+		checkNode(myNode->second);
+		writeAssembly("STORE", myTemp);
+		writeAssembly("LOAD", prevTemp);
+		writeAssembly("DIV", myTemp);
 }
 
 
