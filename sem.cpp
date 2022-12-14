@@ -280,7 +280,7 @@ void processExpr(node* myNode) {
 		checkNode(myNode->second);
 		writeAssembly("STORE", myTemp);
 		checkNode(myNode->first);
-		writeAssembly("ADD", myTemp);
+		writeAssembly("SUB", myTemp);
 	} else {
 		checkNode(myNode->first);
 	}
@@ -307,8 +307,8 @@ void processN(node* myNode) {
 
 // <A> -> <M> <A2>
 void processA(node* myNode) {
-	string myTemp = getTempName();
 	checkNode(myNode->first);
+	string myTemp = getTempName();
 	writeAssembly("STORE", myTemp);
 	checkNode(myNode->second);
 }
@@ -319,12 +319,20 @@ void processA2(node* myNode) {
 	if (myNode->first->tk->instance == "Empty") {
 		return;
 	} else {
+		// <prevM>
 		string prevTemp = "T" + to_string(numTemporaries);
+		
+		// <M>
+		checkNode(myNode->first);
 		string myTemp = getTempName();
-		checkNode(myNode->second);
 		writeAssembly("STORE", myTemp);
+		
+		// <prevM> / <M>
 		writeAssembly("LOAD", prevTemp);
 		writeAssembly("DIV", myTemp);
+		
+		// <A2>
+		checkNode(myNode->second);
 	}
 }
 
