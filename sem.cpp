@@ -331,7 +331,16 @@ void processA2(node* myNode) {
 
 // <M> -> :<M> | <R>
 void processM(node* myNode) {
-	traverse(myNode);
+	if (myNode->first->tk->instance == "<M>") {
+		// Negation operator
+		string myTemp = getTempName();
+		checkNode(myNode->first);
+		writeAssembly("STORE", myTemp);
+		writeAssembly("LOAD", "0");
+		writeAssembly("SUB", myTemp);
+	} else {
+		checkNode(myNode->first);
+	}
 }
 
 
