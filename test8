@@ -1,0 +1,24 @@
+# My test file - test mathematical operations one at a time #
+whole yx := 3 ;
+program
+begin
+   # Output 1: Multiplication #
+   assign yx = 2 * 8;
+   output yx;
+   
+   # Output 2: Addition #
+   assign yx = 9 + 2;
+   output yx;
+   
+   # Output 3: Negation #
+   assign yx = :2 + 3;
+   output yx;
+   
+   # Output 4: Subtraction #
+   assign yx = 17 - 3 - 2;
+   output yx;
+   
+   # Output 5: Division #
+   assign yx = 44 / 11;
+   output yx;
+end
