@@ -177,7 +177,7 @@ void checkNode(node* myNode) {
 
 // <label> -> label Identifier
 void processLabel(node* myNode) {
-	writeAssembly(myNode->first->tk->instance + ":");
+	writeAssembly(myNode->first->tk->instance + ":", "NOOP");
 }
 
 
@@ -264,6 +264,7 @@ void processVars(node* myNode, int& varsCount) {
 					globals.push_back(identNode->tk->instance);
 				} else {
 					writeAssembly("PUSH");
+					writeAssembly("STACKW", "0");
 				}
 				currentNode = currentNode->third;
 			}
@@ -469,9 +470,9 @@ void processLoop(node* myNode) {
 void processRO(node* myNode) {
 	string oper = myNode->first->tk->instance;
 	if (oper == ">") {
-		writeAssembly("BRNEG", "L" + to_string(numLabels));
+		writeAssembly("BRZPOS", "L" + to_string(numLabels));
 	} else if (oper == "<") {
-		writeAssembly("BRPOS", "L" + to_string(numLabels));
+		writeAssembly("BRZNEG", "L" + to_string(numLabels));
 	} else if (oper == "==") {
 		writeAssembly("BRPOS", "L" + to_string(numLabels));
 		writeAssembly("BRNEG", "L" + to_string(numLabels));
