@@ -188,11 +188,18 @@ void processR(node* myNode) {
 		if (found == -1) {
 			statSemanticsError("Unknown variable", myNode->first->tk->instance, myNode->first->tk->lineNum);
 		}
+		bool isGlobal = findGlobal(myNode->first->tk->instance);
+		if (isGlobal) {
+			writeAssembly("LOAD", myNode->first->tk->instance);
+		} else {
+			writeAssembly("STACKR", to_string(found));
+		}
 	} else if (myNode->first->tk->instance == "<expr>") {
 		checkNode(myNode->first);
 		return;
+	} else {
+		writeAssembly("LOAD", myNode->first->tk->instance);
 	}
-	writeAssembly("LOAD", myNode->first->tk->instance);
 }
 
 
@@ -206,8 +213,9 @@ void processInput(node* myNode) {
 	if (isGlobal) {
 		writeAssembly("READ", myNode->first->tk->instance);
 	} else {
-		writeAssembly("READ", getTempName());
-		writeAssembly("LOAD", getTempName());
+		string myTemp = getTempName();
+		writeAssembly("READ", myTemp);
+		writeAssembly("LOAD", myTemp);
 		writeAssembly("STACKW", to_string(found));
 	}
 }
@@ -481,6 +489,7 @@ void processRO(node* myNode) {
 // <goto> -> warp Identifier
 void processGoto(node* myNode) {
 	writeAssembly("BR", myNode->first->tk->instance);
+	
 }
 
 
