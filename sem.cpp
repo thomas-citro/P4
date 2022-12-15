@@ -274,13 +274,18 @@ void processBlock(node* myNode) {
 
 
 // <expr> -> <N> - <expr> | <N>
-void processExpr(node* myNode) {
+void processExpr(node* myNode, bool prevSubtraction) {
 	if (myNode->second != NULL) {
 		string myTemp = getTempName();
-		checkNode(myNode->second);
+		processExpr(myNode->second, true);
 		writeAssembly("STORE", myTemp);
 		checkNode(myNode->first);
-		writeAssembly("SUB", myTemp);
+		if (prevSubtraction) {
+			// To ensure associativity rules apply
+			writeAssembly("ADD", myTemp);
+		} else {
+			writeAssembly("SUB", myTemp);
+		}
 	} else {
 		checkNode(myNode->first);
 	}

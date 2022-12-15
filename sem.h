@@ -11,7 +11,7 @@ void processAssign(node*);
 void processVars(node*, int&);
 void processLabel(node*);
 void processBlock(node*);
-void processExpr(node*);
+void processExpr(node*, bool prevSubtraction = false);
 void processN(node*);
 void processA(node*);
 void processA2(node*);
